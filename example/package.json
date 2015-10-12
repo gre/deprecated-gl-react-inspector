@@ -1,0 +1,34 @@
+{
+  "private": true,
+  "name": "gl-react-inspector-example",
+  "version": "0.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "budo index.js:build.js | garnish"
+  },
+  "browserify": {
+    "transform": [
+      "babelify",
+      "glslify"
+    ]
+  },
+  "license": "ISC",
+  "peerDependencies": {
+    "react": "^0.14.0",
+    "react-dom": "^0.14.0"
+  },
+  "devDependencies": {
+    "budo": "^5.1.0",
+    "garnish": "^3.2.1"
+  },
+  "dependencies": {
+    "babelify": "^6.3.0",
+    "gl-react": "^1.2.1",
+    "gl-react-inspector": "..",
+    "glsl-fast-gaussian-blur": "^1.0.2",
+    "glslify": "^2.3.1",
+    "react": "^0.14.0",
+    "react-addons-perf": "^0.14.0",
+    "watchify": "^3.4.0"
+  }
+}
