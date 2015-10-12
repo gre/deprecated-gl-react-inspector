@@ -49,7 +49,7 @@ class GLNode extends Component {
 
     return <GlslUniformsEditor
       types={uniformsTypes}
-      defaultValues={uniforms}
+      values={uniforms}
       onChange={uniforms => onChange({ uniforms })}
       labelsWidth={64}
       width={width - 20}
