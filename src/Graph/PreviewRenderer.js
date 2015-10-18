@@ -58,21 +58,20 @@ void main () {
         const { width, height } = img;
         return { width, height };
       }
-      return { width: 0, height: 0 }; // TODO: we need image store
+      return { width: 0, height: 0 };
     }
-    const width = "width" in obj ? obj.width : "videoWidth" in obj ? obj.videoWidth : obj.shape && obj.shape[0];
-    const height = "height" in obj ? obj.height : "videoHeight" in obj ? obj.videoHeight : obj.shape && obj.shape[1];
+    const width = "videoWidth" in obj ? obj.videoWidth : "width" in obj ? obj.width : obj.shape && obj.shape[0];
+    const height = "videoHeight" in obj ? obj.videoHeight : "height" in obj ? obj.height : obj.shape && obj.shape[1];
     return { width, height };
   }
   render (obj) {
     const { texture, gl, copyShader } = this;
-    const w = "width" in obj ? obj.width : "videoWidth" in obj ? obj.videoWidth : obj.shape && obj.shape[0];
-    const h = "height" in obj ? obj.height : "videoHeight" in obj ? obj.videoHeight : obj.shape && obj.shape[1];
-    if (!w || !h) {
+    const { width, height } = this.getSizeForData(obj);
+    if (!width || !height) {
       this.setSize(100, 100);
     }
     else {
-      this.setSize(w, h);
+      this.setSize(width, height);
       gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, !obj.data);
       texture.setPixels(obj);
     }

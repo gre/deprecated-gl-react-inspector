@@ -16,6 +16,18 @@ const styles = {
     backgroundColor: "#fff",
     height: "100%",
     zIndex: 2
+  },
+  leftPanelButton: {
+    position: "absolute",
+    right: -20,
+    top: 2,
+    zIndex: 2
+  },
+  rightPanelButton: {
+    position: "absolute",
+    left: -20,
+    top: 2,
+    zIndex: 2
   }
 };
 
@@ -40,29 +52,27 @@ class Panel extends Component {
   render () {
     const { children, left, enabled } = this.props;
     const { width } = this.state;
-    const panelButton = {
-      position: "absolute",
-      [left ? "right" : "left"]: -20,
-      top: 2,
-      zIndex: 2
-    };
+    const panelButton = left ? styles.leftPanelButton : styles.rightPanelButton;
+    const value = enabled ? width : 0;
     return <Motion
-      defaultStyle={{ value: enabled ? width : 0 }}
-      style={{value: spring(enabled ? width : 0, [300, 30])}}>{({ value }) =>
-      <div style={{ width: value, height: "100%" }}>
-        <div style={{
-          ...styles.panel,
-          [left ? "left" : "right"]: value-width,
-          [left ? "borderRight" : "borderLeft"]: enabled ? "1px solid #999" : "",
-          width
-        }}>
-          <span style={panelButton} onClick={this.toggleEnable}>
-            <PanelOpenIcon left={left} enabled={enabled} />
-          </span>
-          { enabled ? <PanelResizer left={left} value={width} onChange={this.setWidth} /> : null }
-          { value > 0 ? children : null}
-        </div>
-      </div>
+      defaultStyle={{ value }}
+      style={{value: spring(value, [300, 30])}}>{interpolated => {
+        const value = Math.round(interpolated.value);
+        return <div style={{ width: value, height: "100%" }}>
+          <div style={{
+            ...styles.panel,
+            [left ? "left" : "right"]: value - width,
+            [left ? "borderRight" : "borderLeft"]: enabled ? "1px solid #999" : "",
+            width
+          }}>
+            <span style={panelButton} onClick={this.toggleEnable}>
+              <PanelOpenIcon left={left} enabled={enabled} />
+            </span>
+            { enabled ? <PanelResizer left={left} value={width} onChange={this.setWidth} /> : null }
+            { value > 0 ? children() : null}
+          </div>
+        </div>;
+      }
     }</Motion>;
   }
 }
@@ -83,7 +93,7 @@ Panel.propTypes = {
   left: PropTypes.bool,
   enabled: PropTypes.bool.isRequired,
   setEnabled: PropTypes.func.isRequired,
-  children: PropTypes.node.isRequired
+  children: PropTypes.func.isRequired
 };
 
 module.exports = Panel;

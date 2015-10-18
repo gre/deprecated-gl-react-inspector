@@ -238,7 +238,7 @@ class Graph extends Component {
   getState (props) {
     const previousState = this.state;
     const previousProps = this.props;
-    const { tree, contents, onChange, expanded, captureEnabled } = props;
+    const { tree, contents, onChange, expanded, captureEnabled, movable } = props;
     const { nodes: dataNodes, lines: dataLines, profileSum } = build({ tree, contents }, onChange);
 
     const nodesExpanded = dataNodes.map(() => expanded);
@@ -261,7 +261,7 @@ class Graph extends Component {
       captureEnabled
     });
 
-    if (previousState) {
+    if (previousState && movable) {
       const { dataNodes: prevDataNodes, nodesRect: prevNodesRect } = previousState;
       dataNodes.forEach(({key}, i) => {
         const oldNodeIndex = findIndex(prevDataNodes, node => node.key === key);
@@ -333,7 +333,7 @@ class Graph extends Component {
   }
 
   render () {
-    const { colors, Shaders, profileMode, openShader, captureEnabled } = this.props;
+    const { colors, Shaders, profileMode, openShader, captureEnabled, movable } = this.props;
     const { nodesRect, dataNodes, dataLines, nodesExpanded, profileSum } = this.state;
     const { width, height } = this.getSize();
     const linesPos = resolveLinesPos(dataLines, dataNodes, nodesRect, nodesExpanded);
@@ -386,7 +386,8 @@ class Graph extends Component {
               profileSum,
               profileMode,
               openShader,
-              captureEnabled
+              captureEnabled,
+              movable
             })
           )}
         </div>
@@ -420,7 +421,8 @@ Graph.propTypes = {
   Shaders: PropTypes.object.isRequired,
   colors: PropTypes.object.isRequired,
   openShader: PropTypes.func.isRequired,
-  captureEnabled: PropTypes.bool.isRequired
+  captureEnabled: PropTypes.bool.isRequired,
+  movable: PropTypes.bool.isRequired
 };
 
 module.exports = Graph;

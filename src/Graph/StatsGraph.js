@@ -60,9 +60,9 @@ class StatsGraph extends Component {
     }
   }
 
-  shouldComponentUpdate ({ timeRange, width, height }, { profiles: { length }, time }) {
+  shouldComponentUpdate ({ timeRange, width, height }, { profiles: { length } }) {
     const { props, state } = this;
-    return (state.profiles.length !== length || length>0 && state.time !== time) ||
+    return (state.profiles.length !== length || length>0) ||
     props.timeRange !== timeRange ||
     props.width !== width ||
     props.height !== height;
@@ -76,8 +76,8 @@ class StatsGraph extends Component {
     if (length===0 || maxValue<=0) return <svg width={width} height={height} />;
 
     const pad = 2;
-    const x = t => pad + (width-2*pad) * (timeRange - time + t) / timeRange;
-    const y = v => pad + (height-2*pad) * (maxValue - v) / maxValue;
+    const x = t => (pad + (width-2*pad) * (Math.min(timeRange - time, 0) + t) / timeRange).toFixed(1);
+    const y = v => (pad + (height-2*pad) * (maxValue - v) / maxValue).toFixed(1);
 
     const linesPath =
     [ length ? `M${pad},${y(profiles[0].value)}` : "" ]

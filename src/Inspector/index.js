@@ -63,6 +63,8 @@ class Inspector extends Component {
       capture: props.defaultCapture,
       captureRate: props.defaultCaptureRate,
       profile: props.defaultProfile,
+      movable: props.defaultMovable,
+      autoRedraw: false,
       profileMode: "exclusive",
       resetIncrement: 1,
       leftPanelEnabled: false,
@@ -84,15 +86,19 @@ class Inspector extends Component {
     if (props.glCanvas !== glCanvas ||
       newState.capture !== state.capture ||
       newState.captureRate !== state.captureRate ||
-      newState.profile !== state.profile) {
+      newState.profile !== state.profile ||
+      newState.autoRedraw !== state.autoRedraw) {
       this.detach(props.glCanvas);
       this.attach(glCanvas, newState);
     }
   }
 
-  attach (glCanvas, { capture, captureRate, profile }) {
+  attach (glCanvas, { capture, captureRate, profile, autoRedraw }) {
     glCanvas.setDebugProbe({
-      onDraw: debug => this.setState({ debug }),
+      onDraw: debug => {
+        if (autoRedraw) glCanvas.requestDraw();
+        this.setState({ debug });
+      },
       capture,
       captureRate,
       profile
@@ -132,7 +138,9 @@ class Inspector extends Component {
       expanded,
       leftPanelEnabled,
       selectedShaderIndex,
-      captureRate
+      captureRate,
+      movable,
+      autoRedraw
     } = this.state;
 
     let shadersList, shaders, selectedShader, glsl;
@@ -147,7 +155,7 @@ class Inspector extends Component {
       <div style={styles.root}>
         <div style={styles.toolbar}>
           <Group>
-            <button onClick={() => this.setState({ resetIncrement: resetIncrement+1 })}>Reset</button>
+            <Toggle value={movable} onChange={movable => this.setState({ movable })}>Movable</Toggle>
           </Group>
           <Group>
             <Toggle value={expanded} onChange={expanded => this.setState({ expanded })}>Expanded</Toggle>
@@ -174,6 +182,11 @@ class Inspector extends Component {
               onChange={profileMode => this.setState({ profileMode })}
             /> : null }
           </Group>
+          <Group>
+            <Toggle value={autoRedraw} onChange={autoRedraw => this.setState({ autoRedraw })}>
+              Force autoRedraw
+            </Toggle>
+          </Group>
         </div>
 
         { debug ?
@@ -181,27 +194,30 @@ class Inspector extends Component {
 
           <Panel left
             enabled={leftPanelEnabled}
-            setEnabled={leftPanelEnabled => this.setState({ leftPanelEnabled })}>
-            <div style={styles.glslEditorHeader}>
-              <Select
-                style={{ width: "100%" }}
-                values={shaders}
-                value={selectedShaderIndex}
-                onChange={(id, selectedShaderIndex) => this.setState({ selectedShaderIndex })}
+            setEnabled={leftPanelEnabled => this.setState({ leftPanelEnabled })}>{ () =>
+            <div style={{ width: "100%", height: "100%" }}>
+              <div style={styles.glslEditorHeader}>
+                <Select
+                  style={{ width: "100%" }}
+                  values={shaders}
+                  value={selectedShaderIndex}
+                  onChange={(id, selectedShaderIndex) => this.setState({ selectedShaderIndex })}
+                />
+              </div>
+              <AceEditor
+                readOnly
+                value={glsl}
+                mode="glsl"
+                theme="solarized_dark"
+                width="100%"
+                height="100%"
+                name="glslEditor"
+                fontSize={10}
+                editorProps={{ $blockScrolling: true }}
+                onChange={() => {}}
               />
             </div>
-            <AceEditor
-              readOnly
-              value={glsl}
-              mode="glsl"
-              theme="solarized_dark"
-              width="100%"
-              height="100%"
-              name="glslEditor"
-              fontSize={10}
-              editorProps={{ $blockScrolling: true }}
-              onChange={() => {}}
-            />
+          }
           </Panel>
 
           <div style={styles.graph}>
@@ -213,16 +229,9 @@ class Inspector extends Component {
             expanded={expanded}
             openShader={this.openShader}
             captureEnabled={capture}
+            movable={movable}
           />
           </div>
-
-          {/*
-          <Panel
-            enabled={rightPanelEnabled}
-            setEnabled={rightPanelEnabled => this.setState({ rightPanelEnabled })}>
-
-          </Panel>
-          */}
         </div>
         : null }
       </div>
@@ -235,14 +244,16 @@ Inspector.propTypes = {
   defaultCapture: PropTypes.bool,
   defaultCaptureRate: PropTypes.number,
   defaultProfile: PropTypes.bool,
-  defaultExpanded: PropTypes.bool
+  defaultExpanded: PropTypes.bool,
+  defaultMovable: PropTypes.bool
 };
 
 Inspector.defaultProps = {
   defaultCapture: true,
-  defaultCaptureRate: 200,
+  defaultCaptureRate: 100,
   defaultProfile: true,
-  defaultExpanded: true
+  defaultExpanded: true,
+  defaultMovable: false
 };
 
 module.exports = Inspector;

@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "babelify": "^6.3.0",
-    "gl-react": "^1.2.4",
+    "gl-react": "^1.2.5",
     "gl-react-inspector": "..",
     "glsl-fast-gaussian-blur": "^1.0.2",
     "glslify": "^2.3.1",
