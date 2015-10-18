@@ -4,7 +4,9 @@ const {
   PropTypes
 } = React;
 const AceEditor = require("react-ace");
+const beautify = require("json-beautify");
 require("brace/mode/glsl");
+require("brace/mode/json");
 require("brace/theme/solarized_dark");
 
 const Graph = require("../Graph");
@@ -68,6 +70,7 @@ class Inspector extends Component {
       profileMode: "exclusive",
       resetIncrement: 1,
       leftPanelEnabled: false,
+      rightPanelEnabled: false,
       selectedShaderIndex: 0
     };
     this.attach(props.glCanvas, this.state);
@@ -137,6 +140,7 @@ class Inspector extends Component {
       resetIncrement,
       expanded,
       leftPanelEnabled,
+      rightPanelEnabled,
       selectedShaderIndex,
       captureRate,
       movable,
@@ -146,7 +150,7 @@ class Inspector extends Component {
     let shadersList, shaders, selectedShader, glsl;
     if (debug) {
       shadersList = debug.Shaders.list();
-      shaders = shadersList.map(id => id+". "+debug.Shaders.get(id).name);
+      shaders = shadersList.map(id => `(${id}) ${debug.Shaders.get(id).name}`);
       selectedShader = shadersList[selectedShaderIndex];
       glsl = debug.Shaders.get(selectedShader).frag;
     }
@@ -232,6 +236,25 @@ class Inspector extends Component {
             movable={movable}
           />
           </div>
+
+          <Panel
+            defaultWidth={500}
+            enabled={rightPanelEnabled}
+            setEnabled={rightPanelEnabled => this.setState({ rightPanelEnabled })}>{ () =>
+            <AceEditor
+              readOnly
+              value={beautify(debug.tree, null, 2, 60)}
+              mode="json"
+              theme="solarized_dark"
+              width="100%"
+              height="100%"
+              name="dataJsonViewer"
+              fontSize={10}
+              editorProps={{ $blockScrolling: true }}
+              onChange={() => {}}
+            />
+          }</Panel>
+
         </div>
         : null }
       </div>

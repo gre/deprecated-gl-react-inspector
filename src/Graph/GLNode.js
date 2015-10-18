@@ -121,15 +121,6 @@ GLNode.renderHeader = ({
   const viaCompStyle = {
     color: colors.gl
   };
-  const shaderStyle = {
-    display: expanded ? "block" : "none",
-    position: "absolute",
-    top: 0,
-    right: 0,
-    fontWeight: "bold",
-    color: colors.gl,
-    cursor: "pointer"
-  };
   const shaderName = Shaders.getName(shader);
   const onClick = e => {
     e.preventDefault();
@@ -137,7 +128,7 @@ GLNode.renderHeader = ({
   };
   return <span style={style}>
     <ExpandButton value={expanded} onChange={onSetExpanded} color={colors.gl} />
-    <span onClick={onClick} style={shaderNameStyle}>{shaderName}</span>
+    <span onClick={onClick} style={shaderNameStyle}>{shaderName}<small style={{ fontSize: "0.5em" }}> ({shader})</small></span>
     {via && via.length ? <span style={viaStyle}>
     {"via "}
     {via.map((name, i) =>
@@ -149,7 +140,6 @@ GLNode.renderHeader = ({
       </span>
     )}
   </span> : null}
-    <span onClick={onClick} style={shaderStyle}>{shader}</span>
   </span>;
 };
 
