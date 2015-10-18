@@ -12,6 +12,7 @@ const img2 = "http://i.imgur.com/vGXYiYy.jpg";
 module.exports = GL.createComponent(
   ({ width, height }) =>
   <Mix ref="mix" width={width} height={height}
+    autoRedraw
     m={
       <Inverse width={64} height={64}>
         <Gradient />
@@ -21,7 +22,7 @@ module.exports = GL.createComponent(
       {img1}
     </Blur>
     <HueRotate hue={3}>
-      <img src={img2} crossOrigin />
+      {img2}
     </HueRotate>
   </Mix>
   , { displayName: "Example1" });

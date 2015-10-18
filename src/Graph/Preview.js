@@ -5,7 +5,7 @@ const {
 } = React;
 const ndarray = require("ndarray");
 const PreviewRenderer = require("./PreviewRenderer");
-
+const imageCache = require("./imageCache");
 const sharedRenderer = new PreviewRenderer();
 
 const styles = {
@@ -13,29 +13,34 @@ const styles = {
     marginTop: "4px",
     paddingTop: "2px",
     textAlign: "center"
+    //background: "#f9f9f9"  // FIXME we need to remove the main padding..
   },
   previewHeader: {
     fontSize: "10px"
   },
   dim: {
-    fontFamily: "monospace",
     color: "#aaa"
   },
   canvas: {
     background: "#f3f3f3 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAARklEQVRYw+3XwQkAIAwEwYvYf8uxBcE8fMwWEAbuleruDDd6cOXzAAEBAQEBAQEBAQFf2tM/RJIyMSAgICAgICAgICDgZQeYxgVOKu5KXQAAAABJRU5ErkJggg==) repeat",
     backgroundSize: "20px 20px",
-    border: "1px solid #f00"
+    border: "1px solid #666"
   }
 };
 
 class Preview extends Component {
 
+  shouldComponentUpdate ({ data }) {
+    return !!data;
+  }
+
   componentDidMount () {
-    this.syncData(this.props.data);
+    const { data } = this.props;
+    if (data) this.syncData(data);
   }
 
   componentDidUpdate ({data}) {
-    this.syncData(data);
+    if (data) this.syncData(data);
   }
 
   drawRaw ({ pixels, width, height }) {
@@ -51,12 +56,6 @@ class Preview extends Component {
     ctx.putImageData(data, 0, 0);
   }
 
-/*
-  drawImage (img) {
-
-  }
-
-*/
   syncData (data) {
     if (this.img) {
       this.img.onload = null;
@@ -64,14 +63,10 @@ class Preview extends Component {
       this.img = null;
     }
     if (typeof data === "string") {
-      const img = new Image();
-      img.crossOrigin = true;
-      // TODO: use a image cache system that is created by Graph so it can refresh itself
-      img.onload = () => {
+      imageCache.load(data, img => {
         sharedRenderer.render(img);
         sharedRenderer.copyToCanvas2D(this.ctx);
-      };
-      img.src = data;
+      });
     }
     else {
       if (data.pixels && data.width && data.height) {
@@ -123,7 +118,7 @@ class Preview extends Component {
 }
 
 Preview.propTypes = {
-  data: PropTypes.any.isRequired,
+  data: PropTypes.any,
   maxWidth: PropTypes.number.isRequired,
   maxHeight: PropTypes.number.isRequired,
   title: PropTypes.string

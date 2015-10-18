@@ -4,7 +4,7 @@ const {
   PropTypes
 } = React;
 const GlslUniformsEditor = require("glsl-uniforms-editor");
-const shallowShouldComponentUpdate = require("./shallowShouldComponentUpdate");
+const shallowShouldComponentUpdate = require("../shallowShouldComponentUpdate");
 
 const ExpandButton = require("./ExpandButton");
 
@@ -32,7 +32,6 @@ class GLNode extends Component {
   render () {
     const {
       width,
-      expanded,
       dataNode: {
         shaderInfos: {
           types: {
@@ -59,14 +58,14 @@ class GLNode extends Component {
         const color = colors[value && value.type || type] || colors.uniform;
         return {
           color: color, //highlight ? "#49f" : hover ? "#9cf" : "#579",
-          fontFamily: "monospace",
-          fontSize: "9px",
+          fontFamily: "inherit",
+          fontSize: "11px",
           lineHeight: "20px"
         };
       }}
       inputStyle={(focus, hover, { primitiveType }) => primitiveType === "bool" ? {} : ({
         color: "#579",
-        fontFamily: "monospace",
+        fontFamily: "inherit",
         fontSize: "9px",
         lineHeight: "16px",
         padding: "0 5px",
@@ -103,7 +102,8 @@ GLNode.renderHeader = ({
   colors,
   Shaders,
   expanded,
-  onSetExpanded
+  onSetExpanded,
+  openShader
 }) => {
   const style = {
     height: expanded ? 14 : 40,
@@ -112,10 +112,11 @@ GLNode.renderHeader = ({
   const shaderNameStyle = {
     fontWeight: "bold",
     marginRight: "5px",
-    color: colors.gl
+    color: colors.gl,
+    cursor: "pointer"
   };
   const viaStyle = {
-    fontSize: "7px"
+    fontSize: "9px"
   };
   const viaCompStyle = {
     color: colors.gl
@@ -125,14 +126,18 @@ GLNode.renderHeader = ({
     position: "absolute",
     top: 0,
     right: 0,
-    fontSize: "10px",
     fontWeight: "bold",
-    color: colors.gl
+    color: colors.gl,
+    cursor: "pointer"
   };
   const shaderName = Shaders.getName(shader);
+  const onClick = e => {
+    e.preventDefault();
+    openShader(shader);
+  };
   return <span style={style}>
     <ExpandButton value={expanded} onChange={onSetExpanded} color={colors.gl} />
-    <span style={shaderNameStyle}>{shaderName}</span>
+    <span onClick={onClick} style={shaderNameStyle}>{shaderName}</span>
     {via && via.length ? <span style={viaStyle}>
     {"via "}
     {via.map((name, i) =>
@@ -144,7 +149,7 @@ GLNode.renderHeader = ({
       </span>
     )}
   </span> : null}
-    <span style={shaderStyle}>{shader}</span>
+    <span onClick={onClick} style={shaderStyle}>{shader}</span>
   </span>;
 };
 
@@ -180,9 +185,9 @@ GLNode.calculateInConnectorPosition = ({ dataNode: { uniforms, shaderInfos: { ty
 GLNode.calculateOutConnectorPosition = (data, line, rect) =>
   ({ x: rect.x + rect.width, y: rect.y + 10 });
 
-GLNode.calculateSize = ({ dataNode: { uniforms } }, expanded) => {
+GLNode.calculateSize = ({ dataNode: { uniforms } }, expanded, captureEnabled) => {
   const width = expanded ? 180 : 140;
-  const height = 40 + (!expanded ? 0 : 20 * Object.keys(uniforms).length + 120);
+  const height = 40 + (!expanded ? 0 : 20 * Object.keys(uniforms).length + (captureEnabled ? 120 : 0));
   return { width, height };
 };
 

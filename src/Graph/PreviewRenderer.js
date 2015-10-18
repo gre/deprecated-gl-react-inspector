@@ -1,5 +1,6 @@
 var createTexture = require("gl-texture2d");
 var createShader = require("gl-shader");
+const imageCache = require("./imageCache");
 
 class PreviewRenderer {
   constructor () {
@@ -50,7 +51,13 @@ void main () {
     gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
   }
   getSizeForData (obj) {
+    if (!obj) return { width: 0, height: 0 };
     if (typeof obj === "string") {
+      const img = imageCache.get(obj);
+      if (img) {
+        const { width, height } = img;
+        return { width, height };
+      }
       return { width: 0, height: 0 }; // TODO: we need image store
     }
     const width = "width" in obj ? obj.width : "videoWidth" in obj ? obj.videoWidth : obj.shape && obj.shape[0];

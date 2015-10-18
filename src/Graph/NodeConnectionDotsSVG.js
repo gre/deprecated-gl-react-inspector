@@ -12,14 +12,13 @@ class NodeConnectionDotsSVG extends Component {
       strokeWidth: 1
     };
     const dotFromStyle = {
-      ...dotStyle,
       fill: colors[dataFrom.type]
     };
     const dotToStyle = {
       ...dotStyle,
       fill: colors[dataTo.dataNode ? dataTo.dataNode.uniforms[uniform].type : dataTo.type]
     };
-    const radFrom = 3;
+    const radFrom = 2;
     const radTo = 3;
     return (
       <g>

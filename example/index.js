@@ -1,6 +1,6 @@
 const React = require("react");
 const ReactDOM = require("react-dom");
-const GlReactInspector = require("gl-react-inspector");
+const GlReactInspector = require("..");
 const GL = require("gl-react");
 const {
   Component
@@ -23,31 +23,29 @@ class Demo extends Component {
   constructor (props) {
     super(props);
     this.state = {
-      debug: null
+      glCanvas: null
     };
   }
 
   componentDidMount () {
-    this.refs.example1.getGLCanvas().setDebugProbe({
-      onDraw: debug => this.setState({ debug })
-    });
+    window.addEventListener("resize", () => this.forceUpdate());
   }
 
   render () {
     const {} = this.props;
-    const { debug } = this.state;
-    const onChange = value => console.log(value);
+    const { glCanvas } = this.state;
     return (
       <div>
         <Static>
-          <Example1 ref="example1" width={200} height={120} />
+          <Example1 ref={ref => { if (ref) this.setState({ glCanvas: ref.getGLCanvas() })}} width={200} height={120} />
         </Static>
-        { debug ? <GlReactInspector.Graph
-          {...debug}
-          width={window.innerWidth-60}
-          height={window.innerHeight-180}
-          onChange={onChange}
+        <div style={{ height: window.innerHeight-120 }}>
+        { glCanvas ?
+        <GlReactInspector.Inspector
+          defaultCapture={false}
+          glCanvas={glCanvas}
         /> : null }
+        </div>
       </div>
     );
   }

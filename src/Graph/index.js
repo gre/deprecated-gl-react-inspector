@@ -8,6 +8,8 @@ const NodeConnectionLineSVG = require("./NodeConnectionLineSVG");
 const immupdate = require("immupdate");
 const Node = require("./Node");
 
+const base64grid = "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3woRFBYgsXCysgAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAABIUlEQVR42u3cMQqAQAxE0YmNdt7/qHY2gkcIIe81lgvLZzun0uf8vo/zW9xJcoTVBCAABIAAEAACQAAIAAEgAASAABAAAkAACAABIAAEgAAQAAJAAAgAASAABIAAmKXy/6XKLpcXgFTj2fYBes+3D4AABOAKBIAAEAACQAAIAAEgAASAABAAAkAACAABIAAEgAAQAAJAAAgAASAABIAAmMY+wF72AbAPsPl8+wAIQACuQAAIAAEgAASAABAAAkAACAABIAAEgAAQAAJAAAgAASAABIAAEAACQAAIgGnsA+xlHwD7AJvPtw+AAATgCgSAABAAAkAACAABIAAEgAAQAAJAAAgAASAABIAAEAACQAAIAAEgAASAAJim8v0liheAhV6jvg1xhNw/egAAAABJRU5ErkJggg==";
+
 const nodeComponentForType = {
   gl: require("./GLNode"),
   content: require("./ContentNode"),
@@ -27,8 +29,8 @@ function recBuild (key, dataNode, { nodes, lines }, lvl, parentContext, imageInd
   const context = { ...parentContext, [dataNode.fboId]: thisIndex };
   nodes.push({
     type: "gl",
+    ...dataNode,
     dataNode,
-    capture: dataNode.capture,
     lvl,
     key,
     onChange ({ uniforms }) {
@@ -92,23 +94,40 @@ function extractImages (dataTree) {
   return images;
 }
 
+function searchDepthestUniform (dataNode, lvl, predicate) {
+  const all =
+  dataNode.contextChildren.map(child => searchDepthestUniform(child, lvl+1, predicate))
+  .concat(dataNode.children.map(child => searchDepthestUniform(child, lvl+1, predicate)))
+  .concat(
+    Object.keys(dataNode.uniforms).map(uniform => {
+      const value = dataNode.uniforms[uniform];
+      return predicate(value, uniform) ? lvl : -Infinity;
+    }));
+  return Math.max(...all);
+}
+
 function build (data, onChange) {
   const contentNodes = data.contents.map((content, id) => ({
     type: "content",
+    ...content,
     content,
-    capture: content.capture,
     id,
-    key: "C"+id
+    key: "C"+id,
+    lvl: searchDepthestUniform(data.tree, 2, value =>
+      typeof value === "object" && !(value instanceof Array) && value.type === "content" && value.id === id)
   }));
   const imageNodes = extractImages(data.tree).map((uri, i) => ({
     type: "image",
     uri,
     capture: uri,
-    key: "i"+i
+    key: "i"+i,
+    lvl: searchDepthestUniform(data.tree, 2, value =>
+      typeof value === "object" && !(value instanceof Array) && value.type === "uri" && value.uri === uri)
   }));
   const outputNode = {
     type: "output",
-    key: "o"
+    key: "o",
+    lvl: 0
   };
 
   const imageIndexByURL = {};
@@ -123,8 +142,14 @@ function build (data, onChange) {
     from: { type: "fbo", index: nodes.length }, // root node is index after nodes
     to: { index: nodes.length-1 } // output node is last node in nodes
   }];
-  recBuild("", data.tree, { nodes, lines }, 0, {}, imageIndexByURL, tree => onChange({ ...data, tree }));
-  return { nodes, lines };
+  recBuild("", data.tree, { nodes, lines }, 1, {}, imageIndexByURL, tree => onChange({ ...data, tree }));
+
+  let profileSum = 0;
+  nodes.forEach(({ profileExclusive }) => profileSum += profileExclusive || 0);
+  outputNode.profileExclusive = 0;
+  outputNode.profileInclusive = profileSum;
+
+  return { nodes, lines, profileSum };
 }
 
 function groupByLevel (nodes) {
@@ -146,64 +171,36 @@ function groupBy (array, field) {
   return groups;
 }
 
-function resolveNodesRect (dataNodes, { nodeMargin, nodesExpanded }) {
-  const nodes = dataNodes.map((node, i) => ({ ...node, size: nodeComponentForType[node.type].calculateSize(node, nodesExpanded[i]) }));
-  const groupedDataNodes = groupBy(nodes, "type");
+function resolveNodesRect (dataNodes, { nodeMargin, nodesExpanded, captureEnabled }) {
+  const nodes = dataNodes.map((node, i) => ({ ...node, size: nodeComponentForType[node.type].calculateSize(node, nodesExpanded[i], captureEnabled) }));
 
   // handle gl nodes
-  const nodesByLevel = groupByLevel(groupedDataNodes.gl);
+  const nodesByLevel = groupByLevel(nodes);
   const widthByLevel = nodesByLevel.map(nodes => nodes.reduce((max, { size: { width } }) => Math.max(width, max), 0));
   const heightByLevel = nodesByLevel.map(nodes => nodes.reduce((sum, { size: { height } }) => sum + height + nodeMargin, 0) - nodeMargin);
   const widthByLevelAccumulated = widthByLevel.reduce((acc, width) => acc.concat(acc[acc.length-1] + width + nodeMargin), [ 0 ]);
   const glWidth = widthByLevelAccumulated[widthByLevelAccumulated.length-1] - nodeMargin;
   const glHeight = heightByLevel.reduce((max, height) => Math.max(height, max), 0);
 
-  // handle content nodes
-  let contentLineMaxY = 0, contentX = 0, contentY = nodeMargin;
-  const contentRect = (groupedDataNodes.content||[]).concat(groupedDataNodes.image||[]).map(node => {
-    const { width, height } = node.size;
-    if (contentX + width > glWidth) {
-      // new line
-      contentX = 0;
-      contentY += contentLineMaxY;
-      contentLineMaxY = 0;
-    }
-    else {
-      contentLineMaxY = Math.max(contentLineMaxY, height);
-    }
-    const rect = { x: contentX, y: contentY + glHeight, width, height };
-    contentX += width + nodeMargin;
-    return rect;
-  });
-
   // generate nodes rects
   const levelsAcc = nodesByLevel.map(() => 0);
-  const nodesRect = nodes.map(node => {
-    const { type, size: { width, height } } = node;
-    let x, y, i;
-    switch (type) {
-    case "gl":
-      const { lvl } = node;
-      x = glWidth - widthByLevelAccumulated[lvl+1] + nodeMargin;
-      y = Math.floor((glHeight-heightByLevel[lvl])/2) + levelsAcc[lvl];
-      levelsAcc[lvl] += height + nodeMargin;
-      return { x, y, width, height };
+  const allocRect = node => {
+    const { size: { width, height } } = node;
+    let x, y;
+    const { lvl } = node;
+    x = glWidth - widthByLevelAccumulated[lvl+1] + nodeMargin;
+    y = Math.floor((glHeight-heightByLevel[lvl])/2) + levelsAcc[lvl];
+    levelsAcc[lvl] += height + nodeMargin;
+    return { x, y, width, height };
+  };
 
-    case "content":
-      i = groupedDataNodes.content.indexOf(node);
-      return contentRect[i];
-
-    case "output":
-      x = glWidth + nodeMargin;
-      y = Math.floor((glHeight-height)/2);
-      levelsAcc[lvl] += height + nodeMargin;
-      return { x, y, width, height };
-
-    case "image":
-      i = groupedDataNodes.image.indexOf(node) + groupedDataNodes.content && groupedDataNodes.content.length || 0;
-      return contentRect[i];
-    }
-  });
+  // split by type to order/group visually each nodes column
+  const nodesByType = groupBy(nodes, "type");
+  const glNodes = (nodesByType.gl||[]).map(allocRect);
+  const imageNodes = (nodesByType.image||[]).map(allocRect);
+  const contentNodes = (nodesByType.content||[]).map(allocRect);
+  const outputNodes = (nodesByType.output||[]).map(allocRect);
+  const nodesRect = contentNodes.concat(imageNodes).concat(outputNodes).concat(glNodes);
 
   return nodesRect.map(({ x, y, width, height }) => ({
     x: x + 20,
@@ -240,10 +237,12 @@ class Graph extends Component {
 
   getState (props) {
     const previousState = this.state;
-    const { tree, contents, onChange } = props;
-    const { nodes: dataNodes, lines: dataLines } = build({ tree, contents }, onChange);
-    const nodesExpanded = dataNodes.map(() => true);
-    if (previousState) {
+    const previousProps = this.props;
+    const { tree, contents, onChange, expanded, captureEnabled } = props;
+    const { nodes: dataNodes, lines: dataLines, profileSum } = build({ tree, contents }, onChange);
+
+    const nodesExpanded = dataNodes.map(() => expanded);
+    if (previousState && previousProps.expanded === expanded) {
       const {
         dataNodes: prevDataNodes,
         nodesExpanded: prevNodesExpanded
@@ -258,7 +257,8 @@ class Graph extends Component {
 
     const nodesRect = resolveNodesRect(dataNodes, {
       nodeMargin: 20,
-      nodesExpanded
+      nodesExpanded,
+      captureEnabled
     });
 
     if (previousState) {
@@ -280,21 +280,21 @@ class Graph extends Component {
       dataNodes,
       dataLines,
       nodesRect,
-      nodesExpanded
+      nodesExpanded,
+      profileSum
     };
   }
 
   getSize () {
     const { nodesRect } = this.state;
-    const { width, height } = this.props;
     let maxX=0, maxY=0;
     nodesRect.forEach(({ x, y, width, height }) => {
       maxX = Math.max(maxX, x + width);
       maxY = Math.max(maxY, y + height);
     });
     return {
-      width: Math.max(width-60, maxX+20),
-      height: Math.max(height-40, maxY+20)
+      width: maxX+20,
+      height: maxY+20
     };
   }
 
@@ -333,30 +333,25 @@ class Graph extends Component {
   }
 
   render () {
-    const { width, height, colors, Shaders } = this.props;
-    const { nodesRect, dataNodes, dataLines, nodesExpanded } = this.state;
-    const { width: maxWidth, height: maxHeight } = this.getSize();
+    const { colors, Shaders, profileMode, openShader, captureEnabled } = this.props;
+    const { nodesRect, dataNodes, dataLines, nodesExpanded, profileSum } = this.state;
+    const { width, height } = this.getSize();
     const linesPos = resolveLinesPos(dataLines, dataNodes, nodesRect, nodesExpanded);
 
-    const style = {
-      background: "#eee",
-      display: "inline-block",
-      overflow: "auto",
+    const containerStyle = {
       width,
       height,
-      boxSizing: "border-box"
-    };
-
-    const containerStyle = {
-      width: maxWidth,
-      height: maxHeight,
+      minWidth: "100%",
+      minHeight: "100%",
       position: "relative",
-      display: "inline-block"
+      display: "inline-block",
+      background: "url('data:image/png;base64,"+base64grid+"')",
+      backgroundSize: "64px 64px"
     };
 
     const absStyle = {
-      width: maxWidth,
-      height: maxHeight,
+      width,
+      height,
       position: "absolute",
       top: 0,
       left: 0
@@ -373,30 +368,32 @@ class Graph extends Component {
     };
 
     return (
-      <div style={style}>
-        <div style={containerStyle}>
-          <svg style={svgStyle} width={width} height={height}>
-            {dataLines.map((line, i) => // FIXME: we should use a SVG for each node so it handle z-index properly
-              <NodeConnectionLineSVG key={i} {...linesPos[i]} colors={colors} />)}
-          </svg>
-          <div style={nodesContainerStyle}>
-            {dataNodes.map((data, i) =>
-              React.createElement(Node, {
-                ...this.getNodeHandlers(i),
-                ...data,
-                Component: nodeComponentForType[data.type],
-                Shaders,
-                rect: nodesRect[i],
-                colors,
-                expanded: nodesExpanded[i]
-              })
-            )}
-          </div>
-          <svg style={svgStyle} width={width} height={height}>
-            {dataLines.map((line, i) =>
-              <NodeConnectionDotsSVG key={i} {...linesPos[i]} colors={colors} />)}
-          </svg>
+      <div style={containerStyle}>
+        <svg style={svgStyle} width={width} height={height}>
+          {dataLines.map((line, i) => // FIXME: we should use a SVG for each node so it handle z-index properly
+            <NodeConnectionLineSVG key={i} {...linesPos[i]} colors={colors} />)}
+        </svg>
+        <div style={nodesContainerStyle}>
+          {dataNodes.map((data, i) =>
+            React.createElement(Node, {
+              ...this.getNodeHandlers(i),
+              ...data,
+              Component: nodeComponentForType[data.type],
+              Shaders,
+              rect: nodesRect[i],
+              colors,
+              expanded: nodesExpanded[i],
+              profileSum,
+              profileMode,
+              openShader,
+              captureEnabled
+            })
+          )}
         </div>
+        <svg style={svgStyle} width={width} height={height}>
+          {dataLines.map((line, i) =>
+            <NodeConnectionDotsSVG key={i} {...linesPos[i]} colors={colors} />)}
+        </svg>
       </div>
     );
   }
@@ -416,12 +413,14 @@ Graph.defaultProps = {
 };
 
 Graph.propTypes = {
+  expanded: PropTypes.bool.isRequired,
+  profileMode: PropTypes.string.isRequired,
   tree: PropTypes.object.isRequired,
   contents: PropTypes.array.isRequired,
   Shaders: PropTypes.object.isRequired,
   colors: PropTypes.object.isRequired,
-  width: PropTypes.number.isRequired,
-  height: PropTypes.number.isRequired
+  openShader: PropTypes.func.isRequired,
+  captureEnabled: PropTypes.bool.isRequired
 };
 
 module.exports = Graph;
