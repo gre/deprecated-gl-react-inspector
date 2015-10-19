@@ -32,8 +32,9 @@ const styles = {
   },
   toolbar: {
     fontSize: "12px",
-    backgroundColor: "#eee",
-    borderBottom: "#999 1px solid",
+    backgroundColor: "#f3f3f3",
+    borderTop: "#999 1px solid",
+    borderBottom: "#ccc 1px solid",
     width: "100%",
     height: "30px",
     padding: "4px 0",
@@ -272,9 +273,9 @@ Inspector.propTypes = {
 };
 
 Inspector.defaultProps = {
-  defaultCapture: true,
+  defaultCapture: false,
   defaultCaptureRate: 100,
-  defaultProfile: true,
+  defaultProfile: false,
   defaultExpanded: true,
   defaultMovable: false
 };

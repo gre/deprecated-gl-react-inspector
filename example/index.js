@@ -40,11 +40,7 @@ class Demo extends Component {
           <Example1 ref={ref => { if (ref) this.setState({ glCanvas: ref.getGLCanvas() })}} width={200} height={120} />
         </Static>
         <div style={{ height: window.innerHeight-120 }}>
-        { glCanvas ?
-        <GlReactInspector.Inspector
-          defaultCapture={false}
-          glCanvas={glCanvas}
-        /> : null }
+        { glCanvas && <GlReactInspector.Inspector glCanvas={glCanvas} /> || null }
         </div>
       </div>
     );

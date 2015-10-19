@@ -7,8 +7,8 @@ const {
 const styles = {
   group: {
     display: "inline-block",
-    padding: "0 4px",
-    margin: "0 4px"
+    padding: "0 6px",
+    margin: "0 6px"
   }
 };
 

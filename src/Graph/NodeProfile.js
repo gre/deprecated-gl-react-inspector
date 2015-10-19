@@ -11,7 +11,7 @@ const {Motion, spring} = require("react-motion");
 
 const statsGraphWidth = 50;
 const statsGraphHeight = 16;
-const statsPieSize = 12;
+const statsPieSize = 14;
 
 const styles = {
   profile: {
@@ -41,8 +41,8 @@ class NodeProfile extends Component {
     return (
       <div style={styles.profile}>
         <StatsGraph key={mode} value={value} width={statsGraphWidth} height={statsGraphHeight} />
-        <Motion defaultStyle={{ value }} style={{ value: spring(value, [120, 15]) }}>{ ({ value }) =>
-          <span style={styles.time}>{value.toFixed(3)}ms</span>
+        <Motion defaultStyle={{ value }} style={{ value: spring(value, [120, 20]) }}>{ ({ value }) =>
+          <span style={styles.time}>{Math.max(0, value).toFixed(3)}ms</span>
         }</Motion>
         { disablePercentage ? null :
           <Motion

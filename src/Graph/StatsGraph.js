@@ -23,7 +23,7 @@ class StatsGraph extends Component {
     super(props);
     this._id = 1;
     this.state = {
-      profiles: [{ t: 0, value: props.value, id: this._id++ }],
+      profiles: [],
       time: 0
     };
   }
@@ -37,6 +37,7 @@ class StatsGraph extends Component {
       const { timeRange } = this.props;
       const { profiles: prevProfiles } = this.state;
       const profiles = prevProfiles.filter(({ t }) => t > time - timeRange);
+      if (profiles.length === 0) startTime = T; // we reset time when there are no profiles
       this.setState({ time, profiles });
     };
     this._raf = raf(loop);
@@ -73,7 +74,7 @@ class StatsGraph extends Component {
     const { profiles, time } = this.state;
     const { length } = profiles;
     const maxValue = profiles.map(p => p.value).reduce((a, b) => Math.max(a, b), 0);
-    if (length===0 || maxValue<=0) return <svg width={width} height={height} />;
+    if (length<=1 || maxValue<=0) return <svg width={width} height={height} />;
 
     const pad = 2;
     const x = t => (pad + (width-2*pad) * (Math.min(timeRange - time, 0) + t) / timeRange).toFixed(1);
