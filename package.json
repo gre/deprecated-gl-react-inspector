@@ -1,6 +1,6 @@
 {
   "name": "gl-react-inspector",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "data inspector for gl-react",
   "main": "index.js",
   "author": "Gaëtan Renaudeau",
