@@ -32,12 +32,15 @@ class StatsGraph extends Component {
     let startTime;
     const loop = T => {
       if (!startTime) startTime = T;
-      const time = T - startTime;
+      let time = T - startTime;
       this._raf = raf(loop);
       const { timeRange } = this.props;
       const { profiles: prevProfiles } = this.state;
       const profiles = prevProfiles.filter(({ t }) => t > time - timeRange);
-      if (profiles.length === 0) startTime = T; // we reset time when there are no profiles
+      if (profiles.length === 0) {
+        startTime = T; // we reset time when there are no profiles
+        time = T - startTime;
+      }
       this.setState({ time, profiles });
     };
     this._raf = raf(loop);

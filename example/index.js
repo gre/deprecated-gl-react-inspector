@@ -9,15 +9,6 @@ const Example1 = require("./src/Example1");
 
 window.Perf = require("react-addons-perf");
 
-class Static extends Component {
-  shouldComponentUpdate () {
-    return false;
-  }
-  render () {
-    return this.props.children;
-  }
-}
-
 class Demo extends Component {
 
   constructor (props) {
@@ -29,6 +20,7 @@ class Demo extends Component {
 
   componentDidMount () {
     window.addEventListener("resize", () => this.forceUpdate());
+    this.setState({ glCanvas: this.refs.gl.getGLCanvas() });
   }
 
   render () {
@@ -36,9 +28,7 @@ class Demo extends Component {
     const { glCanvas } = this.state;
     return (
       <div>
-        <Static>
-          <Example1 ref={ref => { if (ref) this.setState({ glCanvas: ref.getGLCanvas() })}} width={200} height={120} />
-        </Static>
+        <Example1 ref="gl" width={200} height={120} />
         <div style={{ height: window.innerHeight-120 }}>
         { glCanvas && <GlReactInspector.Inspector glCanvas={glCanvas} /> || null }
         </div>

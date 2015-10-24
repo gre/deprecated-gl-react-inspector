@@ -50,8 +50,8 @@ class GLNode extends Component {
       types={uniformsTypes}
       values={uniforms}
       onChange={uniforms => onChange({ uniforms })}
-      labelsWidth={64}
-      width={width - 20}
+      labelsWidth={50}
+      width={width - 22}
       uniformInputMargin={2}
       labelStyle={(highlight, hover, { name, type }) => {
         const value = uniforms[name];
@@ -59,8 +59,8 @@ class GLNode extends Component {
         return {
           color: color, //highlight ? "#49f" : hover ? "#9cf" : "#579",
           fontFamily: "inherit",
-          fontSize: "11px",
-          lineHeight: "20px"
+          fontSize: "9px",
+          lineHeight: "24px"
         };
       }}
       inputStyle={(focus, hover, { primitiveType }) => primitiveType === "bool" ? {} : ({
@@ -162,12 +162,29 @@ function percentageUniform (uniform, uniforms, uniformsTypes) {
   return (0.5 + keys.indexOf(uniform)) / length;
 }
 
+function componentLinesForType (t) {
+  if (t === "mat2") return 2;
+  if (t === "mat3") return 3;
+  if (t === "mat4") return 4;
+  return 1;
+}
+
+const pluckKeys = (keys, obj) =>
+  keys.map(key => obj[key]);
+
+const uniformsHeight = uniformsTypes =>
+  uniformsTypes.reduce((acc, t) =>
+    acc + 2 + 21 * componentLinesForType(t), 0);
+
+const subUniforms = (uniformsTypes, uniform) =>
+  uniformsTypes.slice(0, uniformsTypes.indexOf(uniform));
+
 GLNode.calculateInConnectorPosition = ({ dataNode: { uniforms, shaderInfos: { types: { uniforms: uniformsTypes } } } }, { uniform }, rect, expanded) =>
   ({
     x: rect.x,
     y: rect.y + (
       expanded ?
-      34 + 22 * Object.keys(reorder(uniforms, uniformsTypes).uniformsTypes).indexOf(uniform) :
+      34 + uniformsHeight(pluckKeys(subUniforms(Object.keys(reorder(uniforms, uniformsTypes).uniformsTypes), uniform), uniformsTypes)) :
       4 + 32 * percentageUniform(uniform, uniforms, uniformsTypes)
     )
   });
@@ -175,9 +192,9 @@ GLNode.calculateInConnectorPosition = ({ dataNode: { uniforms, shaderInfos: { ty
 GLNode.calculateOutConnectorPosition = (data, line, rect) =>
   ({ x: rect.x + rect.width, y: rect.y + 10 });
 
-GLNode.calculateSize = ({ dataNode: { uniforms } }, expanded, captureEnabled) => {
+GLNode.calculateSize = ({ dataNode: { shaderInfos: { types: { uniforms: uniformsTypes } } } }, expanded, captureEnabled) => {
   const width = expanded ? 180 : 140;
-  const height = 40 + (!expanded ? 0 : 20 * Object.keys(uniforms).length + (captureEnabled ? 120 : 0));
+  const height = 40 + (!expanded ? 0 : uniformsHeight(pluckKeys(Object.keys(uniformsTypes), uniformsTypes)) + (captureEnabled ? 120 : 0));
   return { width, height };
 };
 

@@ -3,6 +3,7 @@ const {
   Component,
   PropTypes
 } = React;
+const raf = require("raf");
 const AceEditor = require("react-ace");
 const beautify = require("json-beautify");
 require("brace/mode/glsl");
@@ -100,17 +101,24 @@ class Inspector extends Component {
   attach (glCanvas, { capture, captureRate, profile, autoRedraw }) {
     glCanvas.setDebugProbe({
       onDraw: debug => {
-        if (autoRedraw) glCanvas.requestDraw();
         this.setState({ debug });
       },
       capture,
       captureRate,
       profile
     });
+    if (autoRedraw) {
+      const loop = () => {
+        this._raf = raf(loop);
+        glCanvas.requestDraw();
+      };
+      this._raf = raf(loop);
+    }
   }
 
   detach (glCanvas) {
     glCanvas.setDebugProbe(null);
+    raf.cancel(this._raf);
   }
 
   setLeftPanelWidth (leftPanelWidth) {
@@ -200,8 +208,8 @@ class Inspector extends Component {
           <Panel left
             enabled={leftPanelEnabled}
             setEnabled={leftPanelEnabled => this.setState({ leftPanelEnabled })}>{ () =>
-            <div style={{ width: "100%", height: "100%" }}>
-              <div style={styles.glslEditorHeader}>
+            <div style={{ width: "100%", height: "100%", paddingBottom: 20, boxSizing: "border-box" }}>
+              <div>
                 <Select
                   style={{ width: "100%" }}
                   values={shaders}
@@ -226,16 +234,16 @@ class Inspector extends Component {
           </Panel>
 
           <div style={styles.graph}>
-          <Graph
-            key={resetIncrement}
-            {...debug}
-            onChange={this.onChange}
-            profileMode={profileMode}
-            expanded={expanded}
-            openShader={this.openShader}
-            captureEnabled={capture}
-            movable={movable}
-          />
+            <Graph
+              key={resetIncrement}
+              {...debug}
+              onChange={this.onChange}
+              profileMode={profileMode}
+              expanded={expanded}
+              openShader={this.openShader}
+              captureEnabled={capture}
+              movable={movable}
+            />
           </div>
 
           <Panel

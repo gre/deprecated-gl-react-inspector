@@ -310,8 +310,8 @@ class Graph extends Component {
     this.setState({
       nodesRect: immupdate(this.state.nodesRect, {
         [i]: ({ width, height }) => ({
-          x: Math.max(0, x),
-          y: Math.max(0, y),
+          x: Math.round(Math.max(0, x)),
+          y: Math.round(Math.max(0, y)),
           width,
           height
         })
@@ -405,7 +405,7 @@ Graph.defaultProps = {
     gl: "#f55",
     fbo: "#fb0", // OBVIOUSLY #fb0 is the color for framebuffer !!
     uri: "#39f",
-    uniform: "#777",
+    uniform: "#579",
     content: "#6c0",
     output: "#444",
     image: "#0cf"

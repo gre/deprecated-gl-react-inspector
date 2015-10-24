@@ -12,9 +12,9 @@ const styles = {
   panel: {
     position: "absolute",
     top: 30,
-    paddingBottom: 30,
+    boxSizing: "border-box",
     backgroundColor: "#fff",
-    height: "100%",
+    height: "calc(100% - 30px)",
     zIndex: 2
   },
   leftPanelButton: {

@@ -10,8 +10,8 @@ class NodeConnectionLineSVG extends Component {
     const dx = from.x - to.x;
     const dy = from.y - to.y;
     const dist = Math.sqrt(dx*dx + dy*dy);
-    const t = tension * dist;
-    const s = Math.min(solid * dist, 8);
+    const t = Math.round(tension * dist);
+    const s = Math.round(Math.min(solid * dist, 8));
     const style = {
       stroke: "#bbb",
       strokeWidth: 1,
