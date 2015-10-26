@@ -40,7 +40,13 @@ function recBuild (key, dataNode, { nodes, lines }, lvl, parentContext, imageInd
 
   dataNode.contextChildren.forEach((child, i) => {
     context[child.fboId] = nodes.length;
-    recBuild(key+"x"+i, child, {nodes, lines}, lvl+1, context, imageIndexByURL, node => onChangeNode(immupdate(dataNode, {
+    recBuild(key+"x"+i,
+    child,
+    {nodes, lines},
+    lvl + 1 + (dataNode.children.length > 0 ? 1 : 0), // if children, take one more level because is contextual
+    context,
+    imageIndexByURL,
+    node => onChangeNode(immupdate(dataNode, {
       contextChildren: { [i]: () => node }
     })));
   });
