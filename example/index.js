@@ -1,10 +1,10 @@
 const React = require("react");
-const ReactDOM = require("react-dom");
-const GlReactInspector = require("..");
-const GL = require("gl-react");
 const {
   Component
 } = React;
+const ReactDOM = require("react-dom");
+const GlReactInspector = require("..");
+const { Surface } = require("gl-react-dom");
 const Example1 = require("./src/Example1");
 
 window.Perf = require("react-addons-perf");
@@ -24,11 +24,12 @@ class Demo extends Component {
   }
 
   render () {
-    const {} = this.props;
     const { glCanvas } = this.state;
     return (
       <div>
-        <Example1 ref="gl" width={200} height={120} />
+        <Surface ref="gl" width={200} height={120}>
+          <Example1 />
+        </Surface>
         <div style={{ height: window.innerHeight-120 }}>
         { glCanvas && <GlReactInspector.Inspector glCanvas={glCanvas} /> || null }
         </div>

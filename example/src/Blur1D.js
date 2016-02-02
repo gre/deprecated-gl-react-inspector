@@ -14,7 +14,7 @@ const shaders = GL.Shaders.create({
 
 module.exports = GL.createComponent(
   ({ width, height, direction, children }) =>
-    <GL.View
+    <GL.Node
       shader={shaders.blur1D}
       width={width}
       height={height}
@@ -23,7 +23,7 @@ module.exports = GL.createComponent(
         resolution: [ width, height ]
       }}>
       <GL.Uniform name="t">{children}</GL.Uniform>
-    </GL.View>
+    </GL.Node>
 , {
   displayName: "Blur1D",
   propTypes: {

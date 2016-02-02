@@ -3,7 +3,7 @@ const {
   Component,
   PropTypes
 } = React;
-const GlslUniformsEditor = require("glsl-uniforms-editor");
+import GlslUniformsEditor from "glsl-uniforms-editor";
 const shallowShouldComponentUpdate = require("../shallowShouldComponentUpdate");
 
 const ExpandButton = require("./ExpandButton");

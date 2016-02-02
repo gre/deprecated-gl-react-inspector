@@ -9,5 +9,5 @@ const shaders = GL.Shaders.create({
 });
 
 module.exports = GL.createComponent(
-  ({ children: t, ...props }) => <GL.View {...props} shader={shaders.inverse} uniforms={{ t }} />
+  ({ children: t }) => <GL.Node shader={shaders.inverse} uniforms={{ t }} />
 , { displayName: "Inverse" });

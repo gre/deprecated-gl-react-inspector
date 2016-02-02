@@ -28,9 +28,9 @@ function directionForPass (p, factor, total) {
  */
 
 module.exports = GL.createComponent(
-  ({ width, height, factor, children, passes }) => {
+  ({ factor, children, passes }) => {
     const rec = p => p <= 0 ? children :
-    <Blur1D width={width} height={height} direction={directionForPass(p, factor, passes)}>
+    <Blur1D direction={directionForPass(p, factor, passes)}>
       {rec(p-1)}
     </Blur1D>;
     return rec(passes);

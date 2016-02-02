@@ -10,6 +10,8 @@ const Node = require("./Node");
 
 const base64grid = "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3woRFBYgsXCysgAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAABIUlEQVR42u3cMQqAQAxE0YmNdt7/qHY2gkcIIe81lgvLZzun0uf8vo/zW9xJcoTVBCAABIAAEAACQAAIAAEgAASAABAAAkAACAABIAAEgAAQAAJAAAgAASAABIAAmKXy/6XKLpcXgFTj2fYBes+3D4AABOAKBIAAEAACQAAIAAEgAASAABAAAkAACAABIAAEgAAQAAJAAAgAASAABIAAmMY+wF72AbAPsPl8+wAIQACuQAAIAAEgAASAABAAAkAACAABIAAEgAAQAAJAAAgAASAABIAAEAACQAAIgGnsA+xlHwD7AJvPtw+AAATgCgSAABAAAkAACAABIAAEgAAQAAJAAAgAASAABIAAEAACQAAIAAEgAASAAJim8v0liheAhV6jvg1xhNw/egAAAABJRU5ErkJggg==";
 
+const MARGIN = 40;
+
 const nodeComponentForType = {
   gl: require("./GLNode"),
   content: require("./ContentNode"),
@@ -209,8 +211,8 @@ function resolveNodesRect (dataNodes, { nodeMargin, nodesExpanded, captureEnable
   const nodesRect = contentNodes.concat(imageNodes).concat(outputNodes).concat(glNodes);
 
   return nodesRect.map(({ x, y, width, height }) => ({
-    x: x + 20,
-    y: y + 20,
+    x: x + MARGIN,
+    y: y + MARGIN,
     width,
     height
   }));
@@ -262,7 +264,7 @@ class Graph extends Component {
     }
 
     const nodesRect = resolveNodesRect(dataNodes, {
-      nodeMargin: 20,
+      nodeMargin: MARGIN,
       nodesExpanded,
       captureEnabled
     });
@@ -299,8 +301,8 @@ class Graph extends Component {
       maxY = Math.max(maxY, y + height);
     });
     return {
-      width: maxX+20,
-      height: maxY+20
+      width: maxX+MARGIN,
+      height: maxY+MARGIN
     };
   }
 

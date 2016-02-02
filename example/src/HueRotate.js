@@ -9,11 +9,9 @@ const shaders = GL.Shaders.create({
 });
 
 module.exports = GL.createComponent(
-  ({ width, height, hue, children: tex }) =>
-  <GL.View
+  ({ hue, children: tex }) =>
+  <GL.Node
     shader={shaders.hueRotate}
-    width={width}
-    height={height}
     uniforms={{ hue, tex }}
   />,
   { displayName: "HueRotate"});

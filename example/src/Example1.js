@@ -10,14 +10,14 @@ const img1 = "http://i.imgur.com/CKlmtPs.jpg";
 const img2 = "http://i.imgur.com/vGXYiYy.jpg";
 
 module.exports = GL.createComponent(
-  ({ width, height }) =>
-  <Mix ref="mix" width={width} height={height}
+  () =>
+  <Mix ref="mix"
     m={
       <Inverse width={64} height={64}>
         <Gradient />
       </Inverse>
     }>
-    <Blur passes={4} factor={2} width={width} height={height}>
+    <Blur passes={4} factor={2}>
       {img1}
     </Blur>
     <HueRotate hue={3}>

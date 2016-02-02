@@ -9,5 +9,5 @@ const shaders = GL.Shaders.create({
 });
 
 module.exports = GL.createComponent(
-  props => <GL.View {...props} shader={shaders.gradient} />
+  () => <GL.Node shader={shaders.gradient} />
   , { displayName: "Gradient" });

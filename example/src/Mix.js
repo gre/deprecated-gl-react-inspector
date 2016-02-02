@@ -9,10 +9,9 @@ const shaders = GL.Shaders.create({
 });
 
 module.exports = GL.createComponent(
-  ({ m, children: [ t1, t2 ], ...rest }) =>
-  <GL.View
+  ({ m, children: [ t1, t2 ] }) =>
+  <GL.Node
     ref="mix"
-    {...rest}
     shader={shaders.mix}
     uniforms={{ m, t1, t2 }}
   />

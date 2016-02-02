@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "budo index.js:build.js | garnish"
+    "start": "budo index.js:build.js"
   },
   "browserify": {
     "transform": [
@@ -13,22 +13,22 @@
     ]
   },
   "license": "ISC",
-  "peerDependencies": {
-    "react": "^0.14.0",
-    "react-dom": "^0.14.0"
-  },
   "devDependencies": {
-    "budo": "^5.1.0",
-    "garnish": "^3.2.1"
+    "babel-preset-es2015": "^6.3.13",
+    "babel-preset-react": "^6.3.13",
+    "babel-preset-stage-1": "^6.3.13",
+    "budo": "^8.0.3"
   },
   "dependencies": {
-    "babelify": "^6.3.0",
-    "gl-react": "^1.2.5",
+    "babelify": "^7.2.0",
+    "gl-react": "^2.1.2",
+    "gl-react-dom": "^2.1.4",
     "gl-react-inspector": "..",
     "glsl-fast-gaussian-blur": "^1.0.2",
-    "glslify": "^2.3.1",
-    "react": "^0.14.0",
-    "react-addons-perf": "^0.14.0",
-    "watchify": "^3.4.0"
+    "glslify": "^5.0.2",
+    "react": "^0.14.7",
+    "react-dom": "^0.14.7",
+    "react-addons-perf": "^0.14.7",
+    "watchify": "^3.7.0"
   }
 }
