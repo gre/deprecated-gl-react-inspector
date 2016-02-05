@@ -19,7 +19,7 @@ class ExpandButton extends Component {
       color
     } = this.props;
     const style = {
-      padding: "4px 8px 4px 0",
+      padding: "4px 4px 4px 0",
       color,
       cursor: "pointer"
     };

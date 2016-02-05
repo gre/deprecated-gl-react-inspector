@@ -107,13 +107,12 @@ GLNode.renderHeader = ({
 }) => {
   const style = {
     height: expanded ? 14 : 40,
-    display: "inline-block"
+    position: "relative",
   };
   const shaderNameStyle = {
     fontWeight: "bold",
     marginRight: "5px",
-    color: colors.gl,
-    cursor: "pointer"
+    color: colors.gl
   };
   const viaStyle = {
     fontSize: "9px"
@@ -121,14 +120,25 @@ GLNode.renderHeader = ({
   const viaCompStyle = {
     color: colors.gl
   };
+  const openShaderStyle = {
+    color: colors.gl,
+    position: "absolute",
+    top: -4,
+    right: -4,
+    cursor: "pointer",
+    padding: 4,
+    background: "#fff"
+  };
   const shaderName = Shaders.getName(shader);
   const onClick = e => {
     e.preventDefault();
     openShader(shader);
   };
-  return <span style={style}>
+  const title = shaderName+(via && via.length ? "\n(via "+(via||[]).join(" > ")+")" : "");
+  return <div style={style}>
     <ExpandButton value={expanded} onChange={onSetExpanded} color={colors.gl} />
-    <span onClick={onClick} style={shaderNameStyle}>{shaderName}<small style={{ fontSize: "0.5em" }}> ({shader})</small></span>
+    <span title={title} style={shaderNameStyle}>{shaderName}<small style={{ fontSize: "0.5em" }}> ({shader})</small></span>
+    {expanded ? <span style={openShaderStyle} onClick={onClick}>⦿</span> : null }
     {via && via.length ? <span style={viaStyle}>
     {"via "}
     {via.map((name, i) =>
@@ -140,7 +150,7 @@ GLNode.renderHeader = ({
       </span>
     )}
   </span> : null}
-  </span>;
+</div>;
 };
 
 GLNode.propTypes = {
@@ -184,7 +194,7 @@ GLNode.calculateInConnectorPosition = ({ dataNode: { uniforms, shaderInfos: { ty
     x: rect.x,
     y: rect.y + (
       expanded ?
-      34 + uniformsHeight(pluckKeys(subUniforms(Object.keys(reorder(uniforms, uniformsTypes).uniformsTypes), uniform), uniformsTypes)) :
+      38 + uniformsHeight(pluckKeys(subUniforms(Object.keys(reorder(uniforms, uniformsTypes).uniformsTypes), uniform), uniformsTypes)) :
       4 + 32 * percentageUniform(uniform, uniforms, uniformsTypes)
     )
   });

@@ -10,7 +10,7 @@ const Node = require("./Node");
 
 const base64grid = "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3woRFBYgsXCysgAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAABIUlEQVR42u3cMQqAQAxE0YmNdt7/qHY2gkcIIe81lgvLZzun0uf8vo/zW9xJcoTVBCAABIAAEAACQAAIAAEgAASAABAAAkAACAABIAAEgAAQAAJAAAgAASAABIAAmKXy/6XKLpcXgFTj2fYBes+3D4AABOAKBIAAEAACQAAIAAEgAASAABAAAkAACAABIAAEgAAQAAJAAAgAASAABIAAmMY+wF72AbAPsPl8+wAIQACuQAAIAAEgAASAABAAAkAACAABIAAEgAAQAAJAAAgAASAABIAAEAACQAAIgGnsA+xlHwD7AJvPtw+AAATgCgSAABAAAkAACAABIAAEgAAQAAJAAAgAASAABIAAEAACQAAIAAEgAASAAJim8v0liheAhV6jvg1xhNw/egAAAABJRU5ErkJggg==";
 
-const MARGIN = 40;
+const MARGIN = 20;
 
 const nodeComponentForType = {
   gl: require("./GLNode"),
@@ -179,7 +179,7 @@ function groupBy (array, field) {
   return groups;
 }
 
-function resolveNodesRect (dataNodes, { nodeMargin, nodesExpanded, captureEnabled }) {
+function resolveNodesRect (dataNodes, { nodeMargin, nodesExpanded, captureEnabled, valign }) {
   const nodes = dataNodes.map((node, i) => ({ ...node, size: nodeComponentForType[node.type].calculateSize(node, nodesExpanded[i], captureEnabled) }));
 
   // handle gl nodes
@@ -197,7 +197,7 @@ function resolveNodesRect (dataNodes, { nodeMargin, nodesExpanded, captureEnable
     let x, y;
     const { lvl } = node;
     x = glWidth - widthByLevelAccumulated[lvl+1] + nodeMargin;
-    y = Math.floor((glHeight-heightByLevel[lvl])/2) + levelsAcc[lvl];
+    y = (!valign ? 0 : Math.floor((glHeight-heightByLevel[lvl])/2)) + levelsAcc[lvl];
     levelsAcc[lvl] += height + nodeMargin;
     return { x, y, width, height };
   };
@@ -246,7 +246,7 @@ class Graph extends Component {
   getState (props) {
     const previousState = this.state;
     const previousProps = this.props;
-    const { tree, contents, onChange, expanded, captureEnabled, movable } = props;
+    const { tree, contents, onChange, expanded, captureEnabled, movable, valign } = props;
     const { nodes: dataNodes, lines: dataLines, profileSum } = build({ tree, contents }, onChange);
 
     const nodesExpanded = dataNodes.map(() => expanded);
@@ -266,7 +266,8 @@ class Graph extends Component {
     const nodesRect = resolveNodesRect(dataNodes, {
       nodeMargin: MARGIN,
       nodesExpanded,
-      captureEnabled
+      captureEnabled,
+      valign
     });
 
     if (previousState && movable) {
@@ -418,7 +419,8 @@ Graph.defaultProps = {
     output: "#444",
     image: "#0cf"
   },
-  onChange: () => {}
+  onChange: () => {},
+  valign: false
 };
 
 Graph.propTypes = {
@@ -430,7 +432,8 @@ Graph.propTypes = {
   colors: PropTypes.object.isRequired,
   openShader: PropTypes.func.isRequired,
   captureEnabled: PropTypes.bool.isRequired,
-  movable: PropTypes.bool.isRequired
+  movable: PropTypes.bool.isRequired,
+  valign: PropTypes.bool,
 };
 
 module.exports = Graph;

@@ -12,7 +12,7 @@ const styles = {
   noBlank: {
     background: "#fff",
     border: "1px solid #ddd",
-    padding: "5px 10px",
+    padding: "4px 8px",
     borderRadius: "3px",
     boxSizing: "border-box"
   }
@@ -113,7 +113,7 @@ class Node extends Component {
     const blank = Component.useBlankNode;
 
     const headerStyle = {
-      wordWrap: "nowrap",
+      whiteSpace: "nowrap",
       overflow: "hidden",
       textOverflow: "ellipsis",
       paddingBottom: "2px",

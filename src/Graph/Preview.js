@@ -3,6 +3,7 @@ const {
   Component,
   PropTypes
 } = React;
+const { findDOMNode } = require("react-dom");
 const ndarray = require("ndarray");
 const PreviewRenderer = require("./PreviewRenderer");
 const imageCache = require("./imageCache");
@@ -98,7 +99,7 @@ class Preview extends Component {
         style={canvasStyle}
         ref={ref => {
           if (!ref) return;
-          const canvas = React.findDOMNode(ref);
+          const canvas = findDOMNode(ref);
           const ctx = canvas.getContext("2d");
           if ("imageSmoothingEnabled" in ctx) {
             ctx.imageSmoothingEnabled = false;
