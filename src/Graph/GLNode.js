@@ -51,8 +51,8 @@ class GLNode extends Component {
       values={uniforms}
       onChange={uniforms => onChange({ uniforms })}
       labelsWidth={50}
-      width={width - 22}
-      uniformInputMargin={2}
+      width={width - 20}
+      uniformInputMargin={0}
       labelStyle={(highlight, hover, { name, type }) => {
         const value = uniforms[name];
         const color = colors[value && value.type || type] || colors.uniform;
@@ -60,7 +60,8 @@ class GLNode extends Component {
           color: color, //highlight ? "#49f" : hover ? "#9cf" : "#579",
           fontFamily: "inherit",
           fontSize: "9px",
-          lineHeight: "24px"
+          lineHeight: "16px",
+          verticalAlign: "bottom"
         };
       }}
       inputStyle={(focus, hover, { primitiveType }) => primitiveType === "bool" ? {} : ({
@@ -68,7 +69,7 @@ class GLNode extends Component {
         fontFamily: "inherit",
         fontSize: "9px",
         lineHeight: "16px",
-        padding: "0 5px",
+        padding: "0 4px",
         margin: "0",
         border: "1px solid "+(focus ? "#49F" : (hover ? "#9cf" : "#eee")),
         outline: focus ? "#49F 1px solid" : "none",
@@ -184,7 +185,7 @@ const pluckKeys = (keys, obj) =>
 
 const uniformsHeight = uniformsTypes =>
   uniformsTypes.reduce((acc, t) =>
-    acc + 2 + 21 * componentLinesForType(t), 0);
+    acc + 2 + 19 * componentLinesForType(t), 0);
 
 const subUniforms = (uniformsTypes, uniform) =>
   uniformsTypes.slice(0, uniformsTypes.indexOf(uniform));
