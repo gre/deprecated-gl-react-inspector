@@ -125,6 +125,13 @@ class Node extends Component {
       ...dragProps.style
     };
 
+    const footerStyle = {
+      position: "absolute",
+      top: height,
+      left: 0,
+      width
+    };
+
     return <Motion
       defaultStyle={{ height }}
       style={{ height: spring(height, [120, 17]) }}>
@@ -164,8 +171,12 @@ class Node extends Component {
             {Component.renderHeader({ ...componentProps, expanded, onSetExpanded })}
           </div> }
           <Component {...componentProps} dragProps={dragProps} />
-          { !captureEnabled || !capture ? null :
-          <Preview data={capture} maxHeight={100} maxWidth={width-34} /> }
+          { Component.noPreview || !captureEnabled && !capture ? null :
+          <Preview
+            data={capture}
+            maxHeight={100}
+            maxWidth={width-34}
+          /> }
         </div>
       </div>;
     }}</Motion>;

@@ -6,19 +6,16 @@ const {
 
 class NodeConnectionDotsSVG extends Component {
   render () {
-    const { from, dataFrom, to, dataTo, colors, uniform } = this.props;
-    const dotFromStyle = {
-      fill: colors[dataFrom.type]
-    };
-    const dotToStyle = {
+    const { from, to, dataTo, colors, uniform } = this.props;
+    const dotStyle = {
       fill: colors[dataTo.dataNode ? dataTo.dataNode.uniforms[uniform].type : dataTo.type]
     };
     const radFrom = 2;
     const radTo = 3;
     return (
       <g>
-        <circle cx={from.x} cy={from.y} r={radFrom} style={dotFromStyle} />
-        <circle cx={to.x} cy={to.y} r={radTo} style={dotToStyle} />
+        <circle cx={from.x} cy={from.y} r={radFrom} style={dotStyle} />
+        <circle cx={to.x} cy={to.y} r={radTo} style={dotStyle} />
       </g>
     );
   }

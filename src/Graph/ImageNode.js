@@ -33,7 +33,7 @@ ImageNode.calculateOutConnectorPosition = (data, line, rect) =>
   ({ x: rect.x + rect.width, y: rect.y + 10 });
 
 ImageNode.calculateSize = (props, expanded) => {
-  const width = expanded ? 180 : 140;
+  const width = expanded ? 180 : 120;
   const height = expanded ? 160 : 25;
   return { width, height };
 };

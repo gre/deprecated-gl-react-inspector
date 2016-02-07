@@ -3,7 +3,7 @@ const {
   Component,
   PropTypes
 } = React;
-import GlslUniformsEditor from "glsl-uniforms-editor";
+const GlslUniformsEditor = require("glsl-uniforms-editor").default;
 const shallowShouldComponentUpdate = require("../shallowShouldComponentUpdate");
 
 const ExpandButton = require("./ExpandButton");
@@ -98,7 +98,8 @@ class GLNode extends Component {
 GLNode.renderHeader = ({
   dataNode: {
     shader,
-    via
+    via,
+    fboId
   },
   colors,
   Shaders,
@@ -108,11 +109,10 @@ GLNode.renderHeader = ({
 }) => {
   const style = {
     height: expanded ? 14 : 40,
-    position: "relative",
+    position: "relative"
   };
   const shaderNameStyle = {
     fontWeight: "bold",
-    marginRight: "5px",
     color: colors.gl
   };
   const viaStyle = {
@@ -123,12 +123,19 @@ GLNode.renderHeader = ({
   };
   const openShaderStyle = {
     color: colors.gl,
-    position: "absolute",
-    top: -4,
-    right: -4,
     cursor: "pointer",
     padding: 4,
     background: "#fff"
+  };
+  const fboStyle = {
+    position: "absolute",
+    top: -4,
+    right: -4,
+    fontSize: "10px",
+    fontWeight: "bold",
+    padding: 4,
+    color: colors.fbo,
+    backgroundColor: "#fff"
   };
   const shaderName = Shaders.getName(shader);
   const onClick = e => {
@@ -138,8 +145,10 @@ GLNode.renderHeader = ({
   const title = shaderName+(via && via.length ? "\n(via "+(via||[]).join(" > ")+")" : "");
   return <div style={style}>
     <ExpandButton value={expanded} onChange={onSetExpanded} color={colors.gl} />
-    <span title={title} style={shaderNameStyle}>{shaderName}<small style={{ fontSize: "0.5em" }}></small></span>
-    {expanded ? <span style={openShaderStyle} onClick={onClick}>⦿</span> : null }
+    <span title={title} style={shaderNameStyle}>
+      {shaderName}
+      <span style={openShaderStyle} onClick={onClick}>⦿</span>
+    </span>
     {via && via.length ? <span style={viaStyle}>
     {"via "}
     {via.map((name, i) =>
@@ -151,6 +160,7 @@ GLNode.renderHeader = ({
       </span>
     )}
   </span> : null}
+  { fboId>=0 ? <span style={fboStyle} title="Framebuffer ID">{fboId}</span> : null }
 </div>;
 };
 
@@ -204,7 +214,7 @@ GLNode.calculateOutConnectorPosition = (data, line, rect) =>
   ({ x: rect.x + rect.width, y: rect.y + 10 });
 
 GLNode.calculateSize = ({ dataNode: { shaderInfos: { types: { uniforms: uniformsTypes } } } }, expanded, captureEnabled) => {
-  const width = expanded ? 180 : 140;
+  const width = expanded ? 180 : 120;
   const height = 40 + (!expanded ? 0 : uniformsHeight(pluckKeys(Object.keys(uniformsTypes), uniformsTypes)) + (captureEnabled ? 120 : 0));
   return { width, height };
 };

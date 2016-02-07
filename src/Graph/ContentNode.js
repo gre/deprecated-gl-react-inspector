@@ -63,7 +63,7 @@ ContentNode.calculateOutConnectorPosition = (data, line, rect) =>
   ({ x: rect.x + rect.width, y: rect.y + 10 });
 
 ContentNode.calculateSize = (props, expanded) => {
-  const width = expanded ? 180 : 110;
+  const width = expanded ? 180 : 100;
   const height = expanded ? 180 : 25;
   return { width, height };
 };

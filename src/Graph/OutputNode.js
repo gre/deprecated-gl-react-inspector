@@ -47,6 +47,8 @@ OutputNode.propTypes = {
 
 OutputNode.useBlankNode = true;
 
+OutputNode.noPreview = true;
+
 OutputNode.calculateInConnectorPosition = (data, line, rect) =>
   ({ x: rect.x, y: rect.y + 20 });
 

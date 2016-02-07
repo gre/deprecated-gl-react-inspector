@@ -57,6 +57,14 @@ const captureRates = {
   1000: "1 FPS"
 };
 
+const cleanTree = node => {
+  const rest = { ...node };
+  delete rest.shaderInfos;
+  rest.contextChildren = rest.contextChildren.map(cleanTree);
+  rest.children = rest.children.map(cleanTree);
+  return rest;
+};
+
 class Inspector extends Component {
 
   constructor (props) {
@@ -252,7 +260,7 @@ class Inspector extends Component {
             setEnabled={rightPanelEnabled => this.setState({ rightPanelEnabled })}>{ () =>
             <AceEditor
               readOnly
-              value={beautify(debug.tree, null, 2, 60)}
+              value={beautify(cleanTree(debug.tree), null, 2, 60)}
               mode="json"
               theme="solarized_dark"
               width="100%"
@@ -284,7 +292,7 @@ Inspector.defaultProps = {
   defaultCapture: false,
   defaultCaptureRate: 100,
   defaultProfile: false,
-  defaultExpanded: true,
+  defaultExpanded: false,
   defaultMovable: false
 };
 
