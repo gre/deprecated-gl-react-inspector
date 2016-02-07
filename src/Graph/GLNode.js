@@ -132,7 +132,6 @@ GLNode.renderHeader = ({
     top: -4,
     right: -4,
     fontSize: "10px",
-    fontWeight: "bold",
     padding: 4,
     color: colors.fbo,
     backgroundColor: "#fff"
