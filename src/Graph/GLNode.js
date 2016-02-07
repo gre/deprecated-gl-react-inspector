@@ -57,7 +57,7 @@ class GLNode extends Component {
         const value = uniforms[name];
         const color = colors[value && value.type || type] || colors.uniform;
         return {
-          color: color, //highlight ? "#49f" : hover ? "#9cf" : "#579",
+          color,
           fontFamily: "inherit",
           fontSize: "9px",
           lineHeight: "16px",
@@ -138,7 +138,7 @@ GLNode.renderHeader = ({
   const title = shaderName+(via && via.length ? "\n(via "+(via||[]).join(" > ")+")" : "");
   return <div style={style}>
     <ExpandButton value={expanded} onChange={onSetExpanded} color={colors.gl} />
-    <span title={title} style={shaderNameStyle}>{shaderName}<small style={{ fontSize: "0.5em" }}> ({shader})</small></span>
+    <span title={title} style={shaderNameStyle}>{shaderName}<small style={{ fontSize: "0.5em" }}></small></span>
     {expanded ? <span style={openShaderStyle} onClick={onClick}>⦿</span> : null }
     {via && via.length ? <span style={viaStyle}>
     {"via "}

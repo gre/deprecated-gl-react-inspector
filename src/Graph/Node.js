@@ -164,7 +164,7 @@ class Node extends Component {
             {Component.renderHeader({ ...componentProps, expanded, onSetExpanded })}
           </div> }
           <Component {...componentProps} dragProps={dragProps} />
-          { !captureEnabled && !capture ? null :
+          { !captureEnabled || !capture ? null :
           <Preview data={capture} maxHeight={100} maxWidth={width-34} /> }
         </div>
       </div>;

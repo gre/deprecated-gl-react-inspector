@@ -159,7 +159,7 @@ class Inspector extends Component {
     let shadersList, shaders, selectedShader, glsl;
     if (debug) {
       shadersList = debug.Shaders.list();
-      shaders = shadersList.map(id => `(${id}) ${debug.Shaders.get(id).name}`);
+      shaders = shadersList.map(id => debug.Shaders.get(id).name);
       selectedShader = shadersList[selectedShaderIndex];
       glsl = debug.Shaders.get(selectedShader).frag;
     }

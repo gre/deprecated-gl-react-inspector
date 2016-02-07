@@ -22,10 +22,16 @@ const styles = {
   dim: {
     color: "#aaa"
   },
+  container: {
+    position: "relative"
+  },
   canvas: {
     background: "#f3f3f3 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAARklEQVRYw+3XwQkAIAwEwYvYf8uxBcE8fMwWEAbuleruDDd6cOXzAAEBAQEBAQEBAQFf2tM/RJIyMSAgICAgICAgICDgZQeYxgVOKu5KXQAAAABJRU5ErkJggg==) repeat",
     backgroundSize: "20px 20px",
-    border: "1px solid #666"
+    border: "1px solid #666",
+    maxWidth: "100%",
+    maxHeight: "100%",
+    boxSizing: "border-box"
   }
 };
 
@@ -84,36 +90,47 @@ class Preview extends Component {
 
     const { width, height } = sharedRenderer.getSizeForData(data);
 
-    const canvasStyle = {
-      ...styles.canvas,
-      maxHeight: maxHeight+"px",
-      maxWidth: maxWidth+"px"
+    const containerStyle = {
+      ...styles.container,
+      height: maxHeight+"px"
     };
+
+    const canvasStyle = {
+      ...styles.canvas
+    };
+    if (width/height > maxWidth/maxHeight) {
+      canvasStyle.width = "100%";
+    }
+    else {
+      canvasStyle.height = "100%";
+    }
 
     return <div style={styles.preview}>
       <div style={styles.previewHeader}>
         <span style={styles.dim}>{width}⨉{height}</span>
       </div>
-      <canvas
-        title={title}
-        style={canvasStyle}
-        ref={ref => {
-          if (!ref) return;
-          const canvas = findDOMNode(ref);
-          const ctx = canvas.getContext("2d");
-          if ("imageSmoothingEnabled" in ctx) {
-            ctx.imageSmoothingEnabled = false;
-          }
-          else {
-            ctx.imageSmoothingEnabled = false;
-            ctx.mozImageSmoothingEnabled = false;
-            ctx.webkitImageSmoothingEnabled = false;
-            ctx.msImageSmoothingEnabled = false;
-          }
-          this.canvas = canvas;
-          this.ctx = ctx;
-        }}
-      />
+      <div style={containerStyle}>
+        <canvas
+          title={title}
+          style={canvasStyle}
+          ref={ref => {
+            if (!ref) return;
+            const canvas = findDOMNode(ref);
+            const ctx = canvas.getContext("2d");
+            if ("imageSmoothingEnabled" in ctx) {
+              ctx.imageSmoothingEnabled = false;
+            }
+            else {
+              ctx.imageSmoothingEnabled = false;
+              ctx.mozImageSmoothingEnabled = false;
+              ctx.webkitImageSmoothingEnabled = false;
+              ctx.msImageSmoothingEnabled = false;
+            }
+            this.canvas = canvas;
+            this.ctx = ctx;
+          }}
+        />
+      </div>
     </div>;
   }
 }
