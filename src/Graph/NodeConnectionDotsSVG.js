@@ -7,15 +7,10 @@ const {
 class NodeConnectionDotsSVG extends Component {
   render () {
     const { from, dataFrom, to, dataTo, colors, uniform } = this.props;
-    const dotStyle = {
-      stroke: "#999",
-      strokeWidth: 1
-    };
     const dotFromStyle = {
       fill: colors[dataFrom.type]
     };
     const dotToStyle = {
-      ...dotStyle,
       fill: colors[dataTo.dataNode ? dataTo.dataNode.uniforms[uniform].type : dataTo.type]
     };
     const radFrom = 2;
