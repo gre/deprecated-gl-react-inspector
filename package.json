@@ -1,6 +1,6 @@
 {
   "name": "gl-react-inspector",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "data inspector for gl-react",
   "main": "lib/index.js",
   "files": [
