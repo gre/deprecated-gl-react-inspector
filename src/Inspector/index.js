@@ -60,6 +60,9 @@ const captureRates = {
 const cleanTree = node => {
   const rest = { ...node };
   delete rest.shaderInfos;
+  delete rest.profileExclusive;
+  delete rest.profileInclusive;
+  delete rest.capture;
   rest.contextChildren = rest.contextChildren.map(cleanTree);
   rest.children = rest.children.map(cleanTree);
   return rest;
