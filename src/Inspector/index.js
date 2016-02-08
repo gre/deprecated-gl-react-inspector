@@ -63,8 +63,13 @@ const cleanTree = node => {
   delete rest.profileExclusive;
   delete rest.profileInclusive;
   delete rest.capture;
-  rest.contextChildren = rest.contextChildren.map(cleanTree);
-  rest.children = rest.children.map(cleanTree);
+  const contextChildren = rest.contextChildren.map(cleanTree);
+  const children = rest.children.map(cleanTree);
+  // for esthetic purpose (json stringify ordering) we will re-add the prop
+  delete rest.contextChildren;
+  delete rest.children;
+  rest.contextChildren = contextChildren;
+  rest.children = children;
   return rest;
 };
 
