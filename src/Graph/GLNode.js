@@ -136,7 +136,7 @@ GLNode.renderHeader = ({
     color: colors.fbo,
     backgroundColor: "#fff"
   };
-  const shaderName = Shaders.getName(shader);
+  const shaderName = Shaders.get(shader).name;
   const onClick = e => {
     e.preventDefault();
     openShader(shader);
